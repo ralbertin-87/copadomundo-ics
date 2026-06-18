@@ -8,10 +8,8 @@ Updated every 2 hours via GitHub Actions using live data from [openfootball/worl
 Copy the raw URL below and add it as a **subscribed calendar** in your app:
 
 ```
-https://raw.githubusercontent.com/<YOUR-GITHUB-USERNAME>/worldcup2026-ical/main/worldcup.ics
+https://raw.githubusercontent.com/ralbertin-87/copadomundo-ics/main/worldcup.ics
 ```
-
-> Replace `<YOUR-GITHUB-USERNAME>` with your actual GitHub username after you push this repo.
 
 ### How to subscribe
 
