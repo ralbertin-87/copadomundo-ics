@@ -162,8 +162,17 @@ nav a:hover, nav a.active {
 
 #groups-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+@media (max-width: 1300px) {
+  #groups-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  #groups-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  #groups-grid { grid-template-columns: 1fr; }
 }
 
 .group-card {
@@ -172,10 +181,11 @@ nav a:hover, nav a.active {
   border-radius: var(--radius);
   backdrop-filter: blur(12px);
   overflow: hidden;
+  min-width: 0;          /* let grid cells shrink below content */
 }
 
 .group-card-header {
-  padding: 10px 14px;
+  padding: 9px 12px;
   background: rgba(201,162,39,.08);
   border-bottom: 1px solid var(--glass-border);
   font-family: 'Bebas Neue', 'Impact', sans-serif;
@@ -184,38 +194,51 @@ nav a:hover, nav a.active {
   color: var(--gold);
 }
 
+/* Fixed-layout table so column widths are predictable */
 .group-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
+
+/* Column widths: pos | team | P | W | D | L | GF | GA | GD | Pts */
+.group-table col.col-pos  { width: 22px; }
+.group-table col.col-team { width: auto; }  /* fills remaining */
+.group-table col.col-stat { width: 24px; }
+.group-table col.col-pts  { width: 28px; }
+
 .group-table th {
-  padding: 5px 8px;
-  font-size: .65rem;
-  letter-spacing: .1em;
+  padding: 5px 3px;
+  font-size: .62rem;
+  letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--text-dim);
-  text-align: right;
+  text-align: center;
   border-bottom: 1px solid var(--glass-border);
+  white-space: nowrap;
+  overflow: hidden;
 }
-.group-table th:first-child { text-align: left; }
-.group-table th:nth-child(2) { text-align: left; }
+.group-table th.th-team { text-align: left; padding-left: 6px; }
 
 .group-table td {
-  padding: 6px 8px;
-  text-align: right;
-  font-size: .78rem;
+  padding: 6px 3px;
+  text-align: center;
+  font-size: .76rem;
   border-bottom: 1px solid rgba(255,255,255,.04);
+  white-space: nowrap;
+  overflow: hidden;
 }
-.group-table td:first-child  { text-align: center; color: var(--text-dim); width: 24px; }
-.group-table td:nth-child(2) { text-align: left; }
+.group-table td.td-pos  { color: var(--text-dim); }
+.group-table td.td-team { text-align: left; padding-left: 6px; }
+.group-table td.td-pts  { font-weight: 700; color: var(--text); }
 
 .group-table tr:last-child td { border-bottom: none; }
 
 .team-cell {
   display: flex;
   align-items: center;
-  gap: 7px;
-  white-space: nowrap;
+  gap: 6px;
+  overflow: hidden;
 }
 .team-cell img {
   width: 18px; height: 13px;
@@ -228,6 +251,12 @@ nav a:hover, nav a.active {
   border-radius: 2px;
   background: var(--text-dim);
   opacity: .3;
+  flex-shrink: 0;
+}
+.team-cell .team-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Top 2 → gold accent */
@@ -502,8 +531,6 @@ nav a:hover, nav a.active {
 /* ── Mobile ───────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .page-wrap { padding: 0 12px 40px; }
-
-  #groups-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
 
   /* On mobile, bracket collapses to vertical round-by-round stack */
   #bracket-scroll { overflow-x: visible; }

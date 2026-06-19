@@ -261,25 +261,36 @@ function renderGroups() {
       <div class="group-card">
         <div class="group-card-header">${g}</div>
         <table class="group-table">
+          <colgroup>
+            <col class="col-pos">
+            <col class="col-team">
+            <col class="col-stat"><col class="col-stat"><col class="col-stat"><col class="col-stat">
+            <col class="col-stat"><col class="col-stat">
+            <col class="col-stat">
+            <col class="col-pts">
+          </colgroup>
           <thead>
             <tr>
-              <th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th>
-              <th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th>
+              <th></th>
+              <th class="th-team">Team</th>
+              <th>P</th><th>W</th><th>D</th><th>L</th>
+              <th>GF</th><th>GA</th><th>GD</th>
+              <th>Pts</th>
             </tr>
           </thead>
           <tbody>
             ${rows.map((r, i) => {
               const cls = i < 2 ? 'standing-qualified' : (i === 2 ? 'standing-third' : 'standing-out');
               const flag = getFlagUrl(r.team)
-                ? `<img src="${getFlagUrl(r.team)}" alt="${r.team}" width="18" height="13" style="border-radius:2px;object-fit:cover">`
+                ? `<img src="${getFlagUrl(r.team)}" alt="${r.team}" width="18" height="13" style="border-radius:2px;object-fit:cover;flex-shrink:0">`
                 : `<span class="placeholder-flag"></span>`;
               const gd = r.gd > 0 ? `+${r.gd}` : r.gd;
               return `<tr class="${cls}">
-                <td>${i+1}</td>
-                <td><div class="team-cell">${flag}<span class="team-name">${r.team}</span></div></td>
+                <td class="td-pos">${i+1}</td>
+                <td class="td-team"><div class="team-cell">${flag}<span class="team-name">${r.team}</span></div></td>
                 <td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td>
                 <td>${r.gf}</td><td>${r.ga}</td><td>${gd}</td>
-                <td class="pts-col">${r.pts}</td>
+                <td class="td-pts">${r.pts}</td>
               </tr>`;
             }).join('')}
           </tbody>
