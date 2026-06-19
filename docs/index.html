@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIFA World Cup 2026 — Live Bracket</title>
+  <meta name="description" content="Live FIFA World Cup 2026 bracket with standings, auto-updating every 90 seconds.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="page-wrap">
+
+  <header>
+    <h1 class="site-title">World Cup 2026</h1>
+    <p class="site-subtitle">USA &nbsp;·&nbsp; Canada &nbsp;·&nbsp; Mexico</p>
+    <div class="status-bar">
+      <span class="status-dot"></span>
+      <span>Live · updates every 90 s · last updated <strong id="timestamp">--:--</strong></span>
+    </div>
+  </header>
+
+  <nav>
+    <a href="#groups" class="active">Groups</a>
+    <a href="#bracket">Bracket</a>
+  </nav>
+
+  <!-- ── Group Stage ──────────────────────────────────────────────────── -->
+  <section id="groups">
+    <h2 class="section-heading">Group Stage</h2>
+    <div id="groups-grid">
+      <div class="loading-msg">Loading…</div>
+    </div>
+  </section>
+
+  <!-- ── Knockout Bracket ─────────────────────────────────────────────── -->
+  <section id="bracket">
+    <h2 class="section-heading">Knockout Bracket</h2>
+
+    <!-- Desktop bracket -->
+    <div id="bracket-scroll">
+      <div id="bracket-headers" class="bracket-headers"></div>
+      <div id="bracket-arena" style="position:relative; display:flex; align-items:flex-start;">
+        <!-- populated by app.js -->
+      </div>
+    </div>
+
+    <!-- Mobile bracket (vertical stack) -->
+    <div id="bracket-mobile"></div>
+  </section>
+
+</div><!-- /page-wrap -->
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

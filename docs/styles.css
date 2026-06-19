@@ -1,0 +1,553 @@
+/* ── Variables ────────────────────────────────────────────────────────── */
+:root {
+  --bg-deep:       #020b1a;
+  --bg-mid:        #071228;
+  --gold:          #c9a227;
+  --gold-bright:   #ffd060;
+  --gold-dark:     #7a5e0a;
+  --gold-glow:     rgba(201,162,39,.35);
+  --silver:        #a0aec0;
+  --text:          #dde4f0;
+  --text-dim:      #5a6b8a;
+  --glass-bg:      rgba(10,25,60,.55);
+  --glass-border:  rgba(255,255,255,.09);
+  --winner-bg:     rgba(201,162,39,.12);
+  --winner-border: rgba(201,162,39,.5);
+  --loser-text:    #3a4a6a;
+  --card-w:        190px;
+  --card-h:        84px;
+  --slot-h:        110px;   /* vertical space per R32 match */
+  --col-gap:       44px;
+  --radius:        10px;
+}
+
+/* ── Reset / base ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ── Background canvas (particles) ────────────────────────────────────── */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Floodlight beams */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    conic-gradient(from 220deg at 10% 0%, rgba(100,140,255,.07) 0deg, transparent 30deg),
+    conic-gradient(from 310deg at 90% 0%, rgba(100,140,255,.07) 0deg, transparent 30deg),
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(15,35,90,.6) 0%, transparent 70%);
+}
+
+/* ── Page layout ──────────────────────────────────────────────────────── */
+.page-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1700px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────── */
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 40px 20px 28px;
+  text-align: center;
+}
+
+.site-title {
+  font-family: 'Bebas Neue', 'Impact', sans-serif;
+  font-size: clamp(2.4rem, 6vw, 4.8rem);
+  letter-spacing: .08em;
+  color: var(--gold-bright);
+  text-shadow: 0 0 40px var(--gold-glow), 0 2px 0 rgba(0,0,0,.8);
+  line-height: 1.0;
+}
+
+.site-subtitle {
+  font-size: .85rem;
+  color: var(--text-dim);
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: .75rem;
+  color: var(--text-dim);
+}
+
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #2ecc71;
+  box-shadow: 0 0 6px #2ecc71;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; }
+  50%      { opacity: .3; }
+}
+
+/* ── Nav tabs ─────────────────────────────────────────────────────────── */
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 20px 32px;
+}
+
+nav a {
+  padding: 8px 28px;
+  border-radius: 24px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: .8rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  transition: all .2s;
+}
+nav a:hover, nav a.active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(201,162,39,.08);
+}
+
+/* ── Section headings ─────────────────────────────────────────────────── */
+.section-heading {
+  font-family: 'Bebas Neue', 'Impact', sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.4rem);
+  letter-spacing: .1em;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 28px;
+  position: relative;
+}
+.section-heading::after {
+  content: '';
+  display: block;
+  width: 60px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 8px auto 0;
+}
+
+/* ── Groups grid ──────────────────────────────────────────────────────── */
+#groups { padding: 10px 0 48px; }
+
+#groups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.group-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+
+.group-card-header {
+  padding: 10px 14px;
+  background: rgba(201,162,39,.08);
+  border-bottom: 1px solid var(--glass-border);
+  font-family: 'Bebas Neue', 'Impact', sans-serif;
+  font-size: 1.0rem;
+  letter-spacing: .12em;
+  color: var(--gold);
+}
+
+.group-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.group-table th {
+  padding: 5px 8px;
+  font-size: .65rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: right;
+  border-bottom: 1px solid var(--glass-border);
+}
+.group-table th:first-child { text-align: left; }
+.group-table th:nth-child(2) { text-align: left; }
+
+.group-table td {
+  padding: 6px 8px;
+  text-align: right;
+  font-size: .78rem;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.group-table td:first-child  { text-align: center; color: var(--text-dim); width: 24px; }
+.group-table td:nth-child(2) { text-align: left; }
+
+.group-table tr:last-child td { border-bottom: none; }
+
+.team-cell {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.team-cell img {
+  width: 18px; height: 13px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.team-cell .placeholder-flag {
+  width: 18px; height: 13px;
+  border-radius: 2px;
+  background: var(--text-dim);
+  opacity: .3;
+}
+
+/* Top 2 → gold accent */
+.standing-qualified td { color: var(--text); }
+.standing-qualified td:nth-child(2) .team-name { color: var(--gold-bright); }
+.standing-qualified { border-left: 3px solid var(--gold); }
+.standing-third td { color: var(--silver); }
+.standing-third td:nth-child(2) .team-name { color: var(--silver); }
+.standing-third { border-left: 3px solid rgba(160,174,192,.3); }
+.standing-out td { color: var(--text-dim); }
+.pts-col { font-weight: 700; }
+
+/* ── Bracket section ──────────────────────────────────────────────────── */
+#bracket { padding: 10px 0 60px; }
+
+#bracket-scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+  padding-bottom: 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Column headers (sticky top within scroll) */
+.bracket-headers {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  margin-bottom: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-deep);
+  padding: 8px 0 0;
+}
+
+.bracket-header-cell {
+  width: var(--card-w);
+  flex-shrink: 0;
+  text-align: center;
+  font-family: 'Bebas Neue','Impact',sans-serif;
+  font-size: .85rem;
+  letter-spacing: .12em;
+  color: var(--text-dim);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--glass-border);
+}
+.bracket-header-cell.col-gap { width: var(--col-gap); flex-shrink: 0; }
+.bracket-header-cell.col-final {
+  width: 220px;
+  color: var(--gold);
+  font-size: 1.0rem;
+}
+
+#bracket-arena {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+}
+
+/* SVG lines overlay */
+#bracket-lines {
+  position: absolute;
+  top: 0; left: 0;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 2;
+}
+
+/* Bracket columns */
+.bracket-col {
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+  width: var(--card-w);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.col-gap-spacer {
+  flex-shrink: 0;
+  width: var(--col-gap);
+}
+
+/* Final + trophy center column */
+.col-center {
+  flex-shrink: 0;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 3;
+}
+
+/* ── Match card ───────────────────────────────────────────────────────── */
+.match-card {
+  width: var(--card-w);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  position: relative;
+  transition: box-shadow .3s, border-color .3s;
+  animation: card-in .4s ease both;
+}
+.match-card:hover {
+  border-color: rgba(201,162,39,.3);
+  box-shadow: 0 4px 24px rgba(0,0,0,.4);
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.match-card.is-live {
+  border-color: rgba(46,204,113,.5);
+  box-shadow: 0 0 16px rgba(46,204,113,.2);
+  animation: card-in .4s ease both, live-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%,100% { box-shadow: 0 0 10px rgba(46,204,113,.15); }
+  50%      { box-shadow: 0 0 22px rgba(46,204,113,.4); }
+}
+
+.match-card .team-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  min-height: 32px;
+}
+.match-card .team-row:first-child {
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.match-card .team-row img.flag-img {
+  width: 22px; height: 15px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.match-card .team-row .flag-placeholder {
+  width: 22px; height: 15px;
+  border-radius: 2px;
+  background: rgba(255,255,255,.08);
+  flex-shrink: 0;
+}
+.match-card .team-name-text {
+  flex: 1;
+  font-size: .75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+.match-card .team-name-text.is-placeholder {
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: .68rem;
+}
+.match-card .score-val {
+  font-family: 'Bebas Neue','Impact',sans-serif;
+  font-size: .95rem;
+  color: var(--text-dim);
+  min-width: 14px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Winner / loser styling */
+.match-card.is-decided .team-row.winner .team-name-text { color: var(--gold-bright); font-weight: 700; }
+.match-card.is-decided .team-row.winner .score-val      { color: var(--gold-bright); }
+.match-card.is-decided .team-row.winner                 { background: var(--winner-bg); }
+.match-card.is-decided .team-row.loser .team-name-text  { color: var(--loser-text); }
+.match-card.is-decided .team-row.loser .score-val       { color: var(--loser-text); }
+.match-card.is-decided .team-row.loser img.flag-img     { opacity: .35; }
+
+/* Match meta strip */
+.match-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 9px 4px;
+  font-size: .6rem;
+  color: var(--text-dim);
+  border-top: 1px solid rgba(255,255,255,.04);
+  background: rgba(0,0,0,.15);
+}
+.match-meta .live-badge {
+  color: #2ecc71;
+  font-weight: 700;
+  letter-spacing: .08em;
+  animation: blink 1.2s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ── Trophy ───────────────────────────────────────────────────────────── */
+.trophy-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 140px;
+  height: 160px;
+  margin: 0 auto 12px;
+}
+.trophy-glow {
+  position: absolute;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%);
+  animation: trophy-pulse 3s ease-in-out infinite;
+}
+@keyframes trophy-pulse {
+  0%,100% { opacity: .6; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.15); }
+}
+.trophy-svg {
+  position: relative;
+  width: 90px;
+  filter: drop-shadow(0 0 14px var(--gold-glow));
+  animation: trophy-pulse 3s ease-in-out infinite;
+}
+
+.final-label {
+  font-family: 'Bebas Neue','Impact',sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: .18em;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.match-card.final-card {
+  width: 210px;
+  border-color: var(--gold-dark);
+  box-shadow: 0 0 30px rgba(201,162,39,.15);
+}
+.match-card.final-card .team-row { padding: 9px 12px; }
+.match-card.final-card .team-name-text { font-size: .85rem; }
+.match-card.final-card .score-val { font-size: 1.1rem; }
+
+.third-place-label {
+  font-size: .65rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: center;
+  margin: 24px 0 8px;
+}
+
+/* ── Loading / error ──────────────────────────────────────────────────── */
+.loading-msg, .error-msg {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+  font-size: .85rem;
+}
+.error-msg { color: #e74c3c; }
+
+/* ── Scrollbar styling ────────────────────────────────────────────────── */
+#bracket-scroll::-webkit-scrollbar { height: 5px; }
+#bracket-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,.03); }
+#bracket-scroll::-webkit-scrollbar-thumb {
+  background: var(--gold-dark);
+  border-radius: 3px;
+}
+
+/* ── Mobile ───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .page-wrap { padding: 0 12px 40px; }
+
+  #groups-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* On mobile, bracket collapses to vertical round-by-round stack */
+  #bracket-scroll { overflow-x: visible; }
+
+  #bracket-arena { flex-direction: column; align-items: stretch; }
+
+  .bracket-headers { display: none; }
+  #bracket-lines { display: none; }
+
+  .bracket-col,
+  .col-center,
+  .col-gap-spacer { display: none; }
+
+  /* Show the mobile stack instead */
+  #bracket-mobile { display: block; }
+}
+
+@media (min-width: 769px) {
+  #bracket-mobile { display: none; }
+}
+
+#bracket-mobile {
+  display: none;
+}
+.mobile-round {
+  margin-bottom: 24px;
+}
+.mobile-round-header {
+  font-family: 'Bebas Neue','Impact',sans-serif;
+  font-size: 1.0rem;
+  letter-spacing: .14em;
+  color: var(--gold);
+  padding: 8px 0 10px;
+  border-bottom: 1px solid var(--glass-border);
+  margin-bottom: 12px;
+}
+.mobile-matches {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 480px) {
+  #groups-grid { grid-template-columns: 1fr; }
+  .mobile-matches { grid-template-columns: 1fr; }
+  .match-card { width: 100%; }
+}
+.mobile-matches .match-card { width: 100%; }
