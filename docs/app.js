@@ -78,9 +78,31 @@ function computeStanding(matches) {
       rows[m.team2].d++; rows[m.team2].pts++;
     }
   });
-  return Object.values(rows).sort((a, b) =>
+
+  const sorted = Object.values(rows).sort((a, b) =>
     b.pts - a.pts || b.gd - a.gd || b.gf - a.gf || a.team.localeCompare(b.team)
   );
+
+  // Each team plays 3 group matches; games remaining = 3 − played
+  sorted.forEach(r => { r.gamesLeft = 3 - r.p; });
+
+  const played = matches.filter(m => m.score?.ft).length;
+  const groupComplete = played === matches.length && matches.length > 0;
+
+  if (groupComplete) {
+    // Group done — top 2 by standings are definitively through
+    sorted.forEach((r, i) => { r.clinched = i < 2; });
+  } else {
+    // Mathematical clinch: X is safe if at most 1 rival can still
+    // accumulate ≥ X's current points (conservative — ignores GD)
+    sorted.forEach((r, i) => {
+      const rivals = sorted.filter((_, j) => j !== i);
+      const canCatch = rivals.filter(rv => rv.pts + 3 * rv.gamesLeft >= r.pts);
+      r.clinched = canCatch.length <= 1;
+    });
+  }
+
+  return sorted;
 }
 
 // ── Team resolution ───────────────────────────────────────────────────────
@@ -285,9 +307,12 @@ function renderGroups() {
                 ? `<img src="${getFlagUrl(r.team)}" alt="${r.team}" width="18" height="13" style="border-radius:2px;object-fit:cover;flex-shrink:0">`
                 : `<span class="placeholder-flag"></span>`;
               const gd = r.gd > 0 ? `+${r.gd}` : r.gd;
+              const badge = r.clinched
+                ? `<span class="clinched-badge" title="Qualified for Round of 32">★</span>`
+                : '';
               return `<tr class="${cls}">
                 <td class="td-pos">${i+1}</td>
-                <td class="td-team"><div class="team-cell">${flag}<span class="team-name">${r.team}</span></div></td>
+                <td class="td-team"><div class="team-cell">${flag}<span class="team-name">${r.team}</span>${badge}</div></td>
                 <td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td>
                 <td>${r.gf}</td><td>${r.ga}</td><td>${gd}</td>
                 <td class="td-pts">${r.pts}</td>
