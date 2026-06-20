@@ -88,17 +88,35 @@ function computeStanding(matches) {
 
   const played = matches.filter(m => m.score?.ft).length;
   const groupComplete = played === matches.length && matches.length > 0;
+  const remaining = matches.filter(m => !m.score?.ft);
 
   if (groupComplete) {
     // Group done — top 2 by standings are definitively through
     sorted.forEach((r, i) => { r.clinched = i < 2; });
   } else {
-    // Mathematical clinch: X is safe if at most 1 rival can still
-    // accumulate ≥ X's current points (conservative — ignores GD)
+    // In the final matchday window every team has exactly 1 game left.
+    // Two rivals who still face each other are mutually exclusive: only
+    // one can win, so they count as 1 threat, not 2.
+    // In earlier matchdays we skip this reduction (too complex to be safe).
+    const finalMatchday = sorted.every(r => r.gamesLeft === 1);
+
     sorted.forEach((r, i) => {
       const rivals = sorted.filter((_, j) => j !== i);
       const canCatch = rivals.filter(rv => rv.pts + 3 * rv.gamesLeft >= r.pts);
-      r.clinched = canCatch.length <= 1;
+
+      let effectiveThreats = canCatch.length;
+      if (finalMatchday) {
+        for (let a = 0; a < canCatch.length; a++) {
+          for (let b = a + 1; b < canCatch.length; b++) {
+            const ta = canCatch[a].team, tb = canCatch[b].team;
+            if (remaining.some(m =>
+              (m.team1 === ta && m.team2 === tb) ||
+              (m.team1 === tb && m.team2 === ta)
+            )) effectiveThreats--;  // they cancel each other out
+          }
+        }
+      }
+      r.clinched = effectiveThreats <= 1;
     });
   }
 
